@@ -1,6 +1,7 @@
 package com.michaelt.gol;
 
 import java.awt.Graphics;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.swing.JPanel;
@@ -9,21 +10,33 @@ import com.michaelt.gol.Cell.CELL_STATE;
 
 @SuppressWarnings("serial")
 public class Grid extends JPanel {
-
-	public Cell cells[][];
 	
+	private boolean prev[][];
+	private boolean  cur[][];
+	
+	public Cell cells[][];	
 	public Grid() {
+		setSize(500, 500);
 		cells = new Cell[50][50];
+		prev = new boolean[50][50];
+		cur = new boolean[50][50];
 		for(int i = 0; i < 50; i++) {
 			for(int j = 0; j < 50; j++) {
 				cells[i][j] = new Cell();
+//				cur[i][j] = false;
+//				prev[i][j] = false;
 				Random rand = new Random();
-				if(rand.nextInt(5) == 0)
+				if(rand.nextInt(3) == 0) {
 					cells[i][j].state = CELL_STATE.ON;
+				}
+				
 			}
 		}
-	}
-	
+//		cells[24][24].state = CELL_STATE.ON;
+//		cells[25][24].state = CELL_STATE.ON;
+//		cells[25][25].state = CELL_STATE.ON;
+//		cells[24][25].state = CELL_STATE.ON;
+	}	
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -45,11 +58,8 @@ public class Grid extends JPanel {
 			}
 		}		
 	}
-
-	public int total_neighbors(int x, int y) {
-		
-		int count = 0;
-		
+	public int total_neighbors(int x, int y) {		
+		int count = 0;		
 		try {
 			for(int i = -1; i <= 1; i++) {
 				if(cells[x+i][y-1].state == CELL_STATE.ON || 
@@ -75,16 +85,12 @@ public class Grid extends JPanel {
 		}		
 		return count;
 	}
-
 	public void iterate() {
 	   for(int i = 0; i < 50; i++) {
 	   	for(int j = 0; j < 50; j++) {
+	   		cur[i][j] = cells[i][j].state == CELL_STATE.ON; 
 	   		int neighbors = total_neighbors(i,j);
 	   		CELL_STATE cur_state = cells[i][j].state;
-	   		if(neighbors > 0)
-	   			System.err.println("[" + i + "][" + j + "] has " + neighbors + " neighbors.");
-	   		else
-	   			System.out.println("[" + i + "][" + j + "] has " + neighbors + " neighbors.");
 				if(neighbors == 3 && cur_state == CELL_STATE.OFF) {
 					cells[i][j].state = CELL_STATE.FLAG_ON;
 				}
@@ -96,7 +102,9 @@ public class Grid extends JPanel {
 				}
 	   	}
 	   }
+   	if(Arrays.deepEquals(prev, cur))
+   		System.err.println("IDENTICAL!");
+   	prev = cur;
 	   repaint();
-   }
-	
+   }	
 }
